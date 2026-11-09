@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07080d">
+  <title>Blind Test · Écran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/ecran.css">
+</head>
+<body class="host">
+  <div id="unlock" class="overlay">
+    <img class="sym" src="/assets/infinity.webp" alt="">
+    <h1>BLIND <span class="gradtext">TEST</span></h1>
+    <button class="btn big" id="btnUnlock">Activer le son et ouvrir l'écran</button>
+    <p class="muted">Le navigateur exige un clic avant de pouvoir jouer la musique.<br>Astuce : passe en plein écran (F11) sur la TV.</p>
+  </div>
+
+  <div class="colorline"></div>
+  <header class="topbar">
+    <div class="ident">
+      <img class="minisymbol" src="/assets/infinity.webp" alt="">
+      <div><b id="logo">BLIND TEST</b><em>UNITED TO WIN</em></div>
+    </div>
+    <div class="center" id="roundLabel"></div>
+    <div class="right">
+      <span class="tag" id="prize"></span>
+      <div class="brandlogos"><img src="/assets/rapp.webp" alt="RAPP"><img class="tribal" src="/assets/tribal.webp" alt="Tribal Worldwide Morocco"></div>
+    </div>
+  </header>
+
+  <main id="stage"></main>
+
+  <footer class="controls">
+    <span id="conn" class="conn"></span>
+    <button id="btnSkip" title="Terminer le chrono en cours">Passer le chrono</button>
+    <button id="btnReset" title="Revenir à l'accueil (garde les joueurs)">Réinitialiser</button>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/common.js"></script>
+  <script src="/ecran.js"></script>
+</body>
+</html>

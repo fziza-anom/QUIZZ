@@ -1,0 +1,6 @@
+Dépose ici les fichiers MP3 que tu veux utiliser à la place de Deezer.
+
+Puis, dans songs.json, ajoute le nom du fichier à la chanson concernée. Exemple :
+  { "artiste": "Kanye West", "titre": "Stronger", "fichier": "stronger.mp3" }
+
+Le jeu joue les 10 premières secondes du fichier : coupe-le pour qu'il commence au bon moment (le refrain, par exemple).

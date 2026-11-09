@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07080d">
+  <title>Blind Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/joueur.css">
+</head>
+<body class="phone">
+  <div class="timebar" id="timebar"><i data-bar></i></div>
+  <div class="colorline"></div>
+  <header class="phone-top">
+    <b class="logo" id="logo">BLIND <span class="gradtext">TEST</span></b>
+    <div class="me" id="me"></div>
+  </header>
+  <main id="app"><div class="screen"><p class="muted">Connexion…</p></div></main>
+  <footer class="mob-footer">
+    <img src="/assets/rapp.webp" alt="RAPP"><img class="tribal" src="/assets/tribal.webp" alt="Tribal Worldwide Morocco">
+  </footer>
+  <div class="banner" id="banner">Connexion perdue, reconnexion…</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/common.js"></script>
+  <script src="/joueur.js"></script>
+</body>
+</html>
