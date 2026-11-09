@@ -55,6 +55,8 @@ const songs = readJson('songs.json').map((s, i) => ({
   title: String(s.titre || '').trim(),
   file: s.fichier || null,       // MP3 local dans /musiques (prioritaire sur Deezer)
   deezerId: s.deezerId || null,  // force un titre Deezer précis
+  qcmTitle: s.titreQcm || null,   // titre affiché dans le QCM s'il diffère de celui cherché sur Deezer
+  choices: (s.choix || []).map((c) => ({ artist: String(c.artiste || '').trim(), title: String(c.titre || '').trim() })),
   style: s.style || null,        // style musical, sert à choisir des mauvaises réponses qui ressemblent
   enabled: s.actif !== false,
   status: 'pending', source: null, cover: null, found: null, audio: null, mime: 'audio/mpeg', error: null,
@@ -236,8 +238,12 @@ function skipPhase() {
 }
 
 function buildOptions(song) {
-  const picks = pickDistractors(song, songs);
-  return shuffle([song, ...picks]).map((s) => ({ id: s.id, title: s.title, artist: s.artist }));
+  const correct = { id: song.id, title: song.qcmTitle || song.title, artist: song.artist };
+  // Mauvaises réponses imposées dans songs.json ("choix"), sinon tirées parmi des chansons proches
+  const wrong = song.choices.length >= 3
+    ? shuffle(song.choices).slice(0, 3).map((c, i) => ({ id: -1 - i, title: c.title, artist: c.artist }))
+    : pickDistractors(song, songs).map((s) => ({ id: s.id, title: s.title, artist: s.artist }));
+  return shuffle([correct, ...wrong]);
 }
 
 function startGame() {
