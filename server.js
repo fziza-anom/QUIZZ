@@ -8,6 +8,7 @@ const os = require('os');
 const { exec } = require('child_process');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
+const { pickDistractors } = require('./qcm');
 
 const ROOT = __dirname;
 const readJson = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/^﻿/, ''));
@@ -54,6 +55,7 @@ const songs = readJson('songs.json').map((s, i) => ({
   title: String(s.titre || '').trim(),
   file: s.fichier || null,       // MP3 local dans /musiques (prioritaire sur Deezer)
   deezerId: s.deezerId || null,  // force un titre Deezer précis
+  style: s.style || null,        // style musical, sert à choisir des mauvaises réponses qui ressemblent
   enabled: s.actif !== false,
   status: 'pending', source: null, cover: null, found: null, audio: null, mime: 'audio/mpeg', error: null,
 }));
@@ -234,13 +236,7 @@ function skipPhase() {
 }
 
 function buildOptions(song) {
-  const others = shuffle(songs.filter((s) => s.id !== song.id && norm(s.title) !== norm(song.title)));
-  const picks = [];
-  for (const s of others) {
-    if (picks.length === 3) break;
-    if (norm(s.artist) !== norm(song.artist) && !picks.some((p) => norm(p.artist) === norm(s.artist))) picks.push(s);
-  }
-  for (const s of others) { if (picks.length === 3) break; if (!picks.includes(s)) picks.push(s); }
+  const picks = pickDistractors(song, songs);
   return shuffle([song, ...picks]).map((s) => ({ id: s.id, title: s.title, artist: s.artist }));
 }
 
