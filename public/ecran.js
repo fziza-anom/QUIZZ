@@ -232,11 +232,9 @@ function updateLobby(s) {
     ? s.players.map((p) => `<span class="chip ${p.connected ? '' : 'off'}" data-kick="${esc(p.id)}"><i>${esc(initials(p.name))}</i>${esc(p.name)}</span>`).join('')
     : '<div class="empty">En attente des premiers joueurs…</div>';
 
-  const reserve = ok - Math.min(s.config.manches, ok);
   let warn = '';
   if (s.loading) warn = 'Chargement des extraits…';
   else if (ok < s.config.manches) warn = `Seulement ${ok} extraits disponibles`;
-  else if (reserve < 1) warn = 'Aucune chanson de réserve pour un départage';
   $('#startWarn').textContent = warn;
   $('#btnStart').disabled = !s.players.length || !ok;
 
@@ -298,13 +296,15 @@ function renderReveal(s) {
   $('#btnNext').onclick = () => socket.emit('host:next', S.stamp);
 }
 
+const secs = (ms) => (ms / 1000).toFixed(2).replace('.', ',') + ' s';
+
 function board(list, n) {
   if (!list.length) return '<p class="muted">Aucun joueur</p>';
-  return `<ol class="board">${list.slice(0, n).map((p, i) => `
+  return `<ol class="board ${list.length > 10 ? 'cols' : ''}">${list.slice(0, n).map((p, i) => `
     <li style="animation-delay:${i * 40}ms">
       <span class="rk">${p.rank}</span>
       <span class="nm">${esc(p.name)}</span>
-      <span class="delta">${p.good} ✓</span>
+      <span class="delta">${p.good} ✓ · ${secs(p.time)}</span>
       <span class="sc">${fmt(p.score)}</span>
     </li>`).join('')}</ol>`;
 }
@@ -330,7 +330,6 @@ function renderFinal(s) {
   const top = s.players.slice(0, podN);
   // 2e - 1er - 3e quand il y a 3 marches
   const order = top.length === 3 ? [top[1], top[0], top[2]] : top;
-  const rest = s.players.slice(podN);
   const unresolved = s.tie && s.tie.unresolved;
   const hist = s.history || [];
   const medal = (i) => ['🏆', '🥈', '🥉'][i] || '';
@@ -344,13 +343,13 @@ function renderFinal(s) {
         <div class="medal">${medal(i) || i + 1}</div>
         <div class="wn">${esc(p.name)}</div>
         <div class="ws-rank">${i === 0 ? 'CHAMPION·NE' : i + 1 + 'e place'}</div>
-        <b class="ws">${fmt(p.score)}<small>points · ${p.good} bonne${p.good > 1 ? 's' : ''} réponse${p.good > 1 ? 's' : ''}</small></b>
+        <b class="ws">${fmt(p.score)}<small>points · ${p.good} bonne${p.good > 1 ? 's' : ''} réponse${p.good > 1 ? 's' : ''} · ${secs(p.time)}</small></b>
         ${i < W ? '<div class="prize-tag">✦ GAGNE UNE ENCEINTE</div>' : ''}
       </div>`; }).join('')}
     </div>
-    ${unresolved ? `<p class="warn">Égalité persistante entre ${s.tie.names.map(esc).join(', ')} et plus de chanson de réserve : à toi de trancher !</p>` : ''}
-    <div class="final-grid ${rest.length ? '' : 'solo'}">
-      ${rest.length ? `<div class="panel rest"><h3>Classement</h3>${board(rest, 100)}</div>` : ''}
+    ${unresolved ? `<p class="warn">Égalité parfaite (mêmes points, même temps) entre ${s.tie.names.map(esc).join(', ')} : à toi de trancher !</p>` : ''}
+    <div class="final-grid">
+      <div class="panel rest"><h3>Classement complet · ${s.players.length} joueur${s.players.length > 1 ? 's' : ''}</h3>${board(s.players, 300)}</div>
       <div class="panel rest"><h3>Les réponses</h3>
         <ol class="recap">${hist.map((h, i) => `<li>
           ${h.cover ? `<img src="${esc(h.cover)}" alt="">` : '<span class="ph"></span>'}

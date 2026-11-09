@@ -19,19 +19,20 @@ Pour arrêter le jeu : ferme la fenêtre du Terminal, ou appuie sur **Ctrl + C**
 3. L'écran animateur s'ouvre dans le navigateur (sinon : `http://localhost:3000/ecran`). Clique sur **Activer le son**, puis appuie sur **F11** pour le plein écran.
 4. Les collègues scannent le QR code et entrent leur prénom et leur nom. Leurs noms apparaissent à l'écran.
 5. Clique sur **Lancer la partie** (ou appuie sur Espace).
-6. Chaque manche se déroule ainsi : 3 s de préparation, puis **10 s pendant lesquelles la chanson joue et le QCM est affiché**. Les joueurs répondent pendant l'écoute.
+6. Chaque manche se déroule ainsi : 3 s de préparation, puis **15 s pendant lesquelles la chanson joue et le QCM est affiché**. Les joueurs répondent pendant l'écoute.
 7. À la fin du chrono, l'écran indique seulement combien de joueurs ont répondu. **Aucune bonne réponse ni aucun score n'est montré pendant la partie**, ni sur la TV ni sur les téléphones. Clique sur **Chanson suivante** (ou Espace) pour enchaîner.
 8. Après 10 chansons, tout est dévoilé :
    - sur la TV : le podium, le classement complet et les réponses de chaque chanson ;
    - sur chaque téléphone : la place du joueur, ses points et le détail chanson par chanson (✓ / ✕).
 
-   En cas d'égalité pour le top 2, une chanson de départage est jouée d'abord, et seuls les ex aequo peuvent y répondre.
+   Le classement de **tous les joueurs** est affiché (points, bonnes réponses, temps cumulé).
 
 ## Points
 
 - Bonne réponse : de **1000 points** (réponse dès le début de la chanson) à **500 points** (dernière seconde).
+- **Égalité** : à égalité de points, on compare le **temps cumulé sur les bonnes réponses uniquement** ; le plus faible total l'emporte. Une mauvaise réponse ou une absence de réponse vaut 0 point et son temps n'est pas compté.
 - Mauvaise réponse ou pas de réponse : 0 point.
-- La chanson joue toujours ses 10 secondes complètes, même si tout le monde a déjà répondu.
+- La chanson joue toujours ses 15 secondes complètes, même si tout le monde a déjà répondu.
 
 ## À tester avant le jour J (2 minutes)
 
@@ -49,7 +50,7 @@ Lance `LANCER.bat` au bureau, puis scanne le QR code avec ton téléphone **conn
 
 ## La playlist
 
-- La liste est dans **`songs.json`**. À chaque partie, 10 titres sont tirés au hasard. Les autres servent de mauvaises réponses dans les QCM et de chansons de départage.
+- La liste est dans **`songs.json`**. À chaque partie, 10 titres sont tirés au hasard. Les mauvaises réponses de chaque QCM sont définies chanson par chanson (champ `choix`).
 - Les extraits sont téléchargés depuis Deezer au démarrage (gratuit, sans compte). Il faut Internet sur le PC.
 - Dans la salle d'attente, ouvre **Playlist** pour écouter chaque extrait (▶). Décoche un titre pour l'exclure du tirage.
 - **Mauvaises réponses du QCM** : elles sont choisies parmi des chansons du **même style** (ou d'un style voisin), pour que la bonne réponse ne se devine pas. Le style est le champ `style` de chaque chanson dans `songs.json` : `chaabi-maroc`, `pop-maroc`, `rap-maroc`, `rai`, `orient`, `pop-inter`, `variete-fr`. Pour une nouvelle chanson, ajoute-le : `{ "artiste": "...", "titre": "...", "style": "rai" }`. Les voisinages entre styles se règlent dans `qcm.js`.
@@ -65,5 +66,5 @@ Lance `LANCER.bat` au bureau, puis scanne le QR code avec ton téléphone **conn
 |---|---|
 | `manches` | nombre de chansons (aussi modifiable à l'écran) |
 | `gagnants` | nombre de gagnants (2) |
-| `secondesReponse` | durée de chaque chanson / QCM (10) |
+| `secondesReponse` | durée de chaque chanson / QCM (15) |
 | `lot` | texte affiché en haut à droite |

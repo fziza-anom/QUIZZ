@@ -190,17 +190,10 @@ function shuffle(arr) {
 }
 
 const nameOf = (id) => { const p = players.get(id); return p ? `${p.first} ${p.last}` : '?'; };
-// p.tb = points de chaque départage successif, comparés dans l'ordre :
-// un départage suivant ne sert qu'à séparer les joueurs encore à égalité.
-function cmpTb(a, b) {
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const d = (a[i] || 0) - (b[i] || 0);
-    if (d) return d;
-  }
-  return 0;
-}
-const cmp = (a, b) => b.score - a.score || cmpTb(b.tb, a.tb);
-const lastTb = (p) => p.tb[game.tieRounds - 1] || 0;
+// Classement : plus de points d'abord. À égalité de points, on compare le temps cumulé
+// des BONNES réponses uniquement (p.time, en ms) : le plus faible total l'emporte.
+// Une mauvaise réponse ou une absence de réponse vaut 0 point et son temps n'est pas compté.
+const cmp = (a, b) => b.score - a.score || a.time - b.time;
 
 function ranked() {
   const list = [...players.values()].sort((a, b) => cmp(a, b) || a.seq - b.seq);
@@ -258,7 +251,7 @@ function startGame() {
   game.tieRounds = 0;
   game.tie = null;
   game.history = [];
-  for (const p of players.values()) { p.score = 0; p.tb = []; p.good = 0; p.log = []; }
+  for (const p of players.values()) { p.score = 0; p.time = 0; p.good = 0; p.log = []; }
   console.log(`\n  Partie lancée : ${players.size} joueurs, ${n} chansons`);
   startRound(game.playlist[0]);
 }
@@ -279,8 +272,9 @@ function endAnswer() {
   for (const [pid, a] of r.answers) {
     const p = players.get(pid);
     if (!p) continue;
-    if (r.tiebreak) p.tb[game.tieRounds - 1] = a.points;
-    else { p.score += a.points; if (a.correct) p.good++; p.log[game.roundNo - 1] = a; }
+    p.score += a.points;
+    if (a.correct) { p.good++; p.time += a.ms; }
+    p.log[game.roundNo - 1] = a;
   }
   if (!r.tiebreak) {
     const good = [...r.answers.values()].filter((a) => a.correct).length;
@@ -290,11 +284,11 @@ function endAnswer() {
 }
 
 function next() {
-  if (game.phase === 'tie') return startRound(game.reserve.shift(), game.tie.group);
   if (game.phase !== 'reveal') return;
-  if (!game.round.tiebreak && game.roundNo < game.total) return startRound(game.playlist[game.roundNo]);
+  if (game.roundNo < game.total) return startRound(game.playlist[game.roundNo]);
+  // plus de chanson de départage : le temps cumulé des bonnes réponses tranche (voir cmp).
+  // Il ne reste d'égalité que si points ET temps sont identiques à la milliseconde.
   const tie = findTie();
-  if (tie && game.reserve.length) { game.tie = tie; return setPhase('tie'); }
   game.tie = tie ? { ...tie, unresolved: true } : null;
   setPhase('final');
   const top = ranked().slice(0, WINNERS).map((x) => `${x.p.first} ${x.p.last} (${x.p.score})`);
@@ -308,7 +302,7 @@ function resetGame(clearPlayers = false) {
     for (const p of players.values()) if (p.socketId) io.to(p.socketId).emit('kicked');
     players.clear();
   }
-  for (const p of players.values()) { p.score = 0; p.tb = []; p.good = 0; p.log = []; }
+  for (const p of players.values()) { p.score = 0; p.time = 0; p.good = 0; p.log = []; }
   broadcast();
 }
 
@@ -335,7 +329,7 @@ function hostState() {
     config: { titre: config.titre, lot: config.lot, manches: config.manches, gagnants: WINNERS },
     url: playerUrl(), selectedIp, ips: lanAddresses(),
     players: ranked().map(({ p, rank }) => ({
-      id: p.id, name: `${p.first} ${p.last}`, score: p.score, tb: lastTb(p), good: p.good, rank, connected: p.connected,
+      id: p.id, name: `${p.first} ${p.last}`, score: p.score, time: p.time, good: p.good, rank, connected: p.connected,
     })),
     round,
     history: ph === 'final' ? game.history : null,
@@ -458,7 +452,7 @@ io.on('connection', (socket) => {
     }
     if (game.phase !== 'lobby') return ack({ ok: false, error: 'La partie a déjà commencé. Rendez-vous à la prochaine !' });
     if (players.size >= 300) return ack({ ok: false, error: 'La partie est complète.' });
-    const p = { id: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), first, last, score: 0, tb: [], good: 0, log: [], seq: ++joinSeq, connected: true, socketId: null };
+    const p = { id: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), first, last, score: 0, time: 0, good: 0, log: [], seq: ++joinSeq, connected: true, socketId: null };
     players.set(p.id, p);
     console.log(`  + ${first} ${last}  (${players.size} joueurs)`);
     attach(p);
