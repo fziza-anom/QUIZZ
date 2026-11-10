@@ -54,6 +54,7 @@ Lance `LANCER.bat` au bureau, puis scanne le QR code avec ton téléphone **conn
 - Les extraits sont téléchargés depuis Deezer au démarrage (gratuit, sans compte). Il faut Internet sur le PC.
 - Dans la salle d'attente, ouvre **Playlist** pour écouter chaque extrait (▶). Décoche un titre pour l'exclure du tirage.
 - **Mauvaises réponses du QCM** : elles sont choisies parmi des chansons du **même style** (ou d'un style voisin), pour que la bonne réponse ne se devine pas. Le style est le champ `style` de chaque chanson dans `songs.json` : `chaabi-maroc`, `pop-maroc`, `rap-maroc`, `rai`, `orient`, `pop-inter`, `variete-fr`. Pour une nouvelle chanson, ajoute-le : `{ "artiste": "...", "titre": "...", "style": "rai" }`. Les voisinages entre styles se règlent dans `qcm.js`.
+- **Chansons mises de côté** : `songs-reserve.json` garde les idées de titres à ajouter plus tard. Ce fichier n'est pas lu par le jeu : pour en retenir une, copie-la dans `songs.json` avec ses mauvaises réponses (`choix`).
 - Pour ajouter une chanson absente de Deezer, ajoute un MP3 (voir `musiques/LISEZ-MOI.txt`).
 - Certains titres sont fixés sur une version précise avec `deezerId` (Andou Zine, Hdi Rassek, Abdel Kader en live à Bercy, Douni Lbladi en version originale).
 - **Mauvaise version** d'un titre : sur deezer.com, ouvre la bonne version, copie le numéro à la fin de l'adresse (`deezer.com/track/`**`3135556`**) et ajoute-le dans `songs.json` :
